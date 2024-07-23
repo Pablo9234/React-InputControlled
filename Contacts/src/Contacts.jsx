@@ -1,17 +1,27 @@
-import { useState } from "react";
-export function Contacts({ people }) {
-  const [persons, setPersons] = useState(people);
+import { useState, useEffect } from "react";
+import axios from "axios";
+export function Contacts() {
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('');
   const [search,setSearch] = useState('')
+
+  useEffect(()=>{
+    axios.get('http://localhost:3001/people')
+    .then(response => {
+      const contacts = response.data
+      setPersons(contacts)
+    })
+  },[])
+
   const handleName = (event) => {
     setNewName(event.target.value);
-    console.log(event.target.value); //Entradas controladas del nombre
+    //Entradas controladas del nombre
   };
 
   const handleNumber = (event) => {
     setNewNumber(event.target.value);
-    console.log(event.target.value); //Entrada controlada del number
+   //Entrada controlada del number
   };
 
   const addPerson = (event) => {
@@ -39,7 +49,6 @@ export function Contacts({ people }) {
 
   const handleSearch = (event) =>{
     setSearch(event.target.value)
-    console.log(event.target.value)
   };
 
   return (
