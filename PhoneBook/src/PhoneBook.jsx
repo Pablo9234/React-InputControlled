@@ -9,7 +9,7 @@ export function PhoneBook() {
   //Usar useEffect para hacer fetchs
   useEffect(() => {
     axios.get("http://localhost:3001/notes").then((response) => {
-    setNotesState(response.data)
+      setNotesState(response.data);
     });
   }, []);
 
@@ -18,10 +18,13 @@ export function PhoneBook() {
     const noteObject = {
       content: newNote,
       important: Math.random() < 0.5,
-      id: notesState.length + 1,
     };
-    setNotesState(notesState.concat(noteObject));
-    setNewNote("");
+    axios
+      .post("http://localhost:3001/notes", noteObject) //Metodo Post
+      .then((response) => {
+        setNotesState(notesState.concat(response.data));
+        setNewNote("");
+      });
   };
 
   const handleNoteChange = (event) => {
@@ -31,6 +34,19 @@ export function PhoneBook() {
   const notesToShow = showAll
     ? notesState
     : notesState.filter((note) => note.important === true);
+
+    const toggleImportanceOf = (id) => {
+      const url = `http://localhost:3001/notes/${id}`;
+      const note = notesState.find((n) => n.id === id);
+      const changedNote = { ...note, important: !note.important };
+  
+      axios.put(url, changedNote).then((response) => {
+        setNotesState(
+          notesState.map((note) => (note.id !== id ? note : response.data))
+        );
+      });
+    }
+  
 
   return (
     <>
@@ -46,7 +62,12 @@ export function PhoneBook() {
       <h3>{showAll ? "All" : "Important"} Notes</h3>
       <ul>
         {notesToShow.map((note) => (
-          <li key={note.id}>{note.content}</li>
+          <li key={note.id}>
+            {note.content}{" "}
+            <button onClick={()=>toggleImportanceOf(note.id)}>
+              {note.important ? "Make not important" : "Make important"}
+            </button>
+          </li>
         ))}
       </ul>
 
